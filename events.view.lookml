@@ -47,20 +47,7 @@
         se_property,
         se_value,
         doc_height,
-        doc_width,
-        tr_orderid,
-        tr_affiliation,
-        tr_total,
-        tr_tax,
-        tr_city,
-        tr_state,
-        tr_country,
-        ti_orderid,
-        ti_category,
-        ti_sku,
-        ti_name,
-        ti_price,
-        ti_quantity
+        doc_width
       FROM atomic.events
       WHERE domain_userid IS NOT NULL
       -- if dev  -- AND collector_tstamp > DATEADD (day, -2, GETDATE())
@@ -103,6 +90,15 @@
     timeframes: [time, hour, date, week, month]
     sql: ${TABLE}.dvce_tstamp
     hidden: true
+
+  - dimension: device_collector_difference
+    type: int
+    sql: EXTRACT(EPOCH FROM (${TABLE}.collector_tstamp - ${TABLE}.dvce_tstamp))
+
+  - dimension: device_collector_difference_tiered
+    type: tier
+    tiers: [0,1,5,10,30,60,300,900,3600,86400,604800]
+    sql: ${device_collector_difference}
 
   - dimension: page_title
     sql: ${TABLE}.page_title
