@@ -15,7 +15,7 @@
 # Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 # License: Apache License Version 2.0
 
-- view: page_views
+- view: page_views_basic
   derived_table:
     sql: |
       SELECT
@@ -23,28 +23,19 @@
         a.domain_sessionidx,
         a.page_urlhost,
         a.page_urlpath,
-        
-        b.breadcrumb,
-        b.genre,
-        b.author,
-        b.date_published,
-        b.keywords,
-        
         MIN(a.collector_tstamp) AS first_touch_tstamp,
         MAX(a.collector_tstamp) AS last_touch_tstamp,
-
+        MIN(dvce_tstamp) AS dvce_min_tstamp,
+        MAX(dvce_tstamp) AS dvce_max_tstamp,
         COUNT(*) AS event_count,
-        SUM(CASE WHEN a.event = 'page_view' THEN 1 ELSE 0 END) AS page_view_count,
-        SUM(CASE WHEN a.event = 'page_ping' THEN 1 ELSE 0 END) AS page_ping_count,
-        COUNT(DISTINCT(FLOOR(EXTRACT (EPOCH FROM a.dvce_tstamp)/30)))/2::FLOAT AS time_engaged_with_minutes
-        
+        SUM(CASE WHEN event = 'page_view' THEN 1 ELSE 0 END) AS page_view_count,
+        SUM(CASE WHEN event = 'page_ping' THEN 1 ELSE 0 END) AS page_ping_count,
+        COUNT(DISTINCT(FLOOR(EXTRACT (EPOCH FROM dvce_tstamp)/30)))/2::FLOAT AS time_engaged_with_minutes
       FROM
-        atomic.events a
-      LEFT JOIN
-        atomic.org_schema_web_page_1 b ON a.event_id = b.root_id
-      GROUP BY 1,2,3,4,5,6,7,8,9
-  
-    sql_trigger_value: SELECT COUNT(*) FROM ${visitors.SQL_TABLE_NAME} # Generate this table after visitors
+        atomic.events
+      GROUP BY 1,2,3,4
+    
+    sql_trigger_value: SELECT COUNT(*) FROM ${link_clicks.SQL_TABLE_NAME} # Generate this table after link_clicks
     distkey: domain_userid
     sortkeys: [domain_userid, domain_sessionidx, first_touch_tstamp]
   
