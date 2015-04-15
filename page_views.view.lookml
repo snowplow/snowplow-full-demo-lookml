@@ -54,7 +54,7 @@
   
   # Session-related dimensions
   
-  - dimension: user_id
+  - dimension: cookie_id
     sql: ${TABLE}.domain_userid
   
   - dimension: session_index
@@ -62,7 +62,7 @@
     sql: ${TABLE}.domain_sessionidx
   
   - dimension: session_id
-    sql: ${user_id} || '-' || ${session_index}
+    sql: ${cookie_id} || '-' || ${session_index}
   
   - dimension: session_index_tier
     type: tier
@@ -142,5 +142,56 @@
   
   # MEASURES #
   
+  # Basic counts
   
+  - measure: row_count
+    type: count
+  
+  - measure: session_count
+    type: count_distinct
+    sql: ${session_id}
+  
+  - measure: visitor_count
+    type: count_distinct
+    sql: ${cookie_id}
+  
+  - measure: page_count
+    type: count_distinct
+    sql: ${page}
+  
+  # More counts (NOT USED RIGHT NOW)
+  
+  - dimension: total_number_of_events
+    type: sum
+    sql: ${number_of_events}
+  
+  - dimension: total_number_of_page_views
+    type: sum
+    sql: ${number_of_page_views}
+  
+  - dimension: total_number_of_page_pings
+    type: sum
+    sql: ${number_of_page_pings}
+  
+  # Averages
+  
+  - measure: average_number_of_events
+    type: average
+    sql: ${number_of_events}
+  
+  - measure: average_number_of_page_views
+    type: average
+    sql: ${number_of_page_views}
+  
+  - measure: average_number_of_page_pings
+    type: average
+    sql: ${number_of_page_pings}
+  
+  - measure: average_seconds_between_first_and_last_touch
+    type: average
+    sql: ${seconds_between_first_and_last_touch}
+  
+  - measure: average_minutes_engaged
+    type: average
+    sql: ${minutes_engaged}
   
