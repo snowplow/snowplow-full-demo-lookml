@@ -43,3 +43,17 @@
 - explore: visitors
 
 - explore: link_clicks
+  joins:
+  - join: events
+    sql_on: |
+      link_clicks.root_id = events.event_id
+    relationship: one_to_one
+  - join: sessions
+    sql_on: |
+      link_clicks.domain_userid = sessions.domain_userid AND
+      link_clicks.domain_sessionidx = sessions.domain_sessionidx
+    relationship: many_to_one
+  - join: visitors
+    sql_on: |
+      link_clicks.domain_userid = visitors.domain_userid
+    relationship: many_to_one
