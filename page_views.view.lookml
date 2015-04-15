@@ -52,4 +52,95 @@
   
   # DIMENSIONS # 
   
-  # Basic dimensions
+  # Session-related dimensions
+  
+  - dimension: user_id
+    sql: ${TABLE}.domain_userid
+  
+  - dimension: session_index
+    type: int
+    sql: ${TABLE}.domain_sessionidx
+  
+  - dimension: session_id
+    sql: ${user_id} || '-' || ${session_index}
+  
+  - dimension: session_index_tier
+    type: tier
+    tiers: [1,2,3,4,5,10,25,100,1000]
+    sql: ${session_index}
+  
+  # Page-related dimensions
+  
+  - dimension: page_host
+    sql: ${TABLE}.page_urlhost
+  
+  - dimension: page_path
+    sql: ${TABLE}.page_urlpath
+  
+  - dimension: page
+    sql: ${page_host} || ${page_path}
+  
+  - dimension: page_title
+    sql: ${TABLE}.page_title
+  
+  - dimension: page_breadcrumb
+    sql: ${TABLE}.breadcrumb
+  
+  - dimension: page_genre
+    sql: ${TABLE}.genre
+  
+  - dimension: page_author
+    sql: ${TABLE}.author
+  
+  - dimension: page_date_published
+    sql: ${TABLE}.date_published
+  
+  - dimension: page_keywords
+    sql: ${TABLE}.keywords
+  
+  # Engagement-related dimensions
+  
+  - dimension_group: first_touch
+    type: time
+    timeframes: [time, hour, date, week, month]
+    sql: ${TABLE}.first_touch_tstamp
+  
+  - dimension_group: last_touch
+    type: time
+    timeframes: [time, hour, date, week, month]
+    sql: ${TABLE}.last_touch_tstamp
+  
+  - dimension: seconds_between_first_and_last_touch
+    type: int
+    sql: EXTRACT(EPOCH FROM (${TABLE}.last_touch_tstamp - ${TABLE}.first_touch_tstamp))
+  
+  - dimension: seconds_between_first_and_last_touch_tiered
+    type: tier
+    tiers: [0,1,5,10,30,60,300,900]
+    sql: ${seconds_between_first_and_last_touch}
+  
+  - dimension: number_of_events
+    type: int
+    sql: ${TABLE}.event_count
+  
+  - dimension: number_of_page_views
+    type: int
+    sql: ${TABLE}.page_view_count
+  
+  - dimension: number_of_page_pings
+    type: int
+    sql: ${TABLE}.page_ping_count
+  
+  - dimension: minutes_engaged
+    type: number
+    sql: ${TABLE}.time_engaged_with_minutes
+  
+  - dimension: minutes_engaged_tiered
+    type: tier
+    tiers: [0,1,2,3,4,5,10,30,60,120,300]
+    sql: ${minutes_engaged}
+  
+  # MEASURES #
+  
+  
+  
