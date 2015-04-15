@@ -50,7 +50,6 @@
         doc_width
       FROM atomic.events
       WHERE domain_userid IS NOT NULL
-      -- if dev  -- AND collector_tstamp > DATEADD (day, -2, GETDATE())
     
     sql_trigger_value: SELECT MAX(collector_tstamp) FROM atomic.events
     distkey: domain_userid

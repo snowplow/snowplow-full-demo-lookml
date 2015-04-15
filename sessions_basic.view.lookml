@@ -35,7 +35,6 @@
         AND dvce_tstamp IS NOT NULL
         AND dvce_tstamp > '2000-01-01' -- Prevent SQL errors
         AND dvce_tstamp < '2030-01-01' -- Prevent SQL errors
-        -- if dev -- AND collector_tstamp > DATEADD (day, -2, GETDATE())
       GROUP BY 1,2
 
     sql_trigger_value: SELECT MAX(collector_tstamp) FROM ${events.SQL_TABLE_NAME}  # Trigger table generation when new data loaded into atomic.events

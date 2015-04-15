@@ -36,7 +36,6 @@
         AND dvce_tstamp IS NOT NULL
         AND dvce_tstamp > '2000-01-01' -- Prevent SQL errors
         AND dvce_tstamp < '2030-01-01' -- Prevent SQL errors
-        -- if dev -- AND collector_tstamp > '2015-03-20'
       GROUP BY 1
     
     sql_trigger_value: SELECT COUNT(*) FROM ${sessions.SQL_TABLE_NAME} # Generate this table after sessions
