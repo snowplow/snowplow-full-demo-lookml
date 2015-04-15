@@ -19,12 +19,12 @@
   derived_table:
     sql: |
       SELECT
-        a.domain_userid,
-        a.domain_sessionidx,
-        a.page_urlhost,
-        a.page_urlpath,
-        MIN(a.collector_tstamp) AS first_touch_tstamp,
-        MAX(a.collector_tstamp) AS last_touch_tstamp,
+        domain_userid,
+        domain_sessionidx,
+        page_urlhost,
+        page_urlpath,
+        MIN(collector_tstamp) AS first_touch_tstamp,
+        MAX(collector_tstamp) AS last_touch_tstamp,
         MIN(dvce_tstamp) AS dvce_min_tstamp,
         MAX(dvce_tstamp) AS dvce_max_tstamp,
         COUNT(*) AS event_count,
@@ -33,14 +33,16 @@
         COUNT(DISTINCT(FLOOR(EXTRACT (EPOCH FROM dvce_tstamp)/30)))/2::FLOAT AS time_engaged_with_minutes
       FROM
         atomic.events
+      WHERE page_urlhost IS NOT NULL
+        AND page_urlpath IS NOT NULL
+        AND domain_sessionidx IS NOT NULL
+        AND domain_userid IS NOT NULL
+        AND domain_userid != ''
+        AND dvce_tstamp IS NOT NULL
+        AND dvce_tstamp > '2000-01-01' -- Prevent SQL errors
+        AND dvce_tstamp < '2030-01-01' -- Prevent SQL errors
       GROUP BY 1,2,3,4
     
     sql_trigger_value: SELECT COUNT(*) FROM ${link_clicks.SQL_TABLE_NAME} # Generate this table after link_clicks
     distkey: domain_userid
     sortkeys: [domain_userid, domain_sessionidx, first_touch_tstamp]
-  
-  fields:
-  
-  # DIMENSIONS #
-  
-  # Basic dimensions

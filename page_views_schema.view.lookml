@@ -26,15 +26,14 @@
           a.domain_sessionidx,
           a.page_urlhost,
           a.page_urlpath,
-          
+          a.page_title,
           b.breadcrumb,
           b.genre,
           b.author,
           b.date_published,
           b.keywords,
-          
           RANK() OVER (PARTITION BY a.domain_userid, a.domain_sessionidx, a.page_urlhost, a.page_urlpath
-            ORDER BY b.breadcrumb, b.genre, b.author, b.date_published, b.keywords) AS rank
+            ORDER BY a.page_title, b.breadcrumb, b.genre, b.author, b.date_published, b.keywords) AS rank
         FROM atomic.events AS a
         LEFT JOIN atomic.org_schema_web_page_1 b
           ON a.event_id = b.root_id
@@ -44,17 +43,10 @@
           AND a.page_urlhost = c.page_urlhost
           AND a.page_urlpath = c.page_urlpath
           AND a.dvce_tstamp = c.dvce_max_tstamp
-        GROUP BY 1,2,3,4,5,6,7,8,9 -- Aggregate identital rows (that happen to have the same dvce_tstamp)
+        GROUP BY 1,2,3,4,5,6,7,8,9,10 -- Aggregate identital rows (that happen to have the same dvce_tstamp)
       )
       WHERE rank = 1 -- If there are different rows with the same dvce_tstamp, rank and pick the first row
     
     sql_trigger_value: SELECT COUNT(*) FROM ${page_views_basic.SQL_TABLE_NAME} # Generate this table after page_views_basic
     distkey: domain_userid
     sortkeys: [domain_userid, domain_sessionidx]
-  
-  fields:
-  
-  # DIMENSIONS #
-  
-  # Basic dimensions
-  
