@@ -57,3 +57,5 @@
     sql_on: |
       link_clicks.domain_userid = visitors.domain_userid
     relationship: many_to_one
+
+- explore: page_views

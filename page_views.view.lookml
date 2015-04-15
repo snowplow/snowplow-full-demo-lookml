@@ -159,33 +159,25 @@
     type: count_distinct
     sql: ${page}
   
-  # More counts (NOT USED RIGHT NOW)
+  # More counts
   
-  - dimension: total_number_of_events
+  - measure: total_number_of_events
     type: sum
     sql: ${number_of_events}
   
-  - dimension: total_number_of_page_views
+  - measure: total_number_of_page_views
     type: sum
     sql: ${number_of_page_views}
   
-  - dimension: total_number_of_page_pings
+  - measure: total_number_of_page_pings
     type: sum
     sql: ${number_of_page_pings}
+  
+  - measure: total_minutes_engaged
+    type: sum
+    sql: ${minutes_engaged}
   
   # Averages
-  
-  - measure: average_number_of_events
-    type: average
-    sql: ${number_of_events}
-  
-  - measure: average_number_of_page_views
-    type: average
-    sql: ${number_of_page_views}
-  
-  - measure: average_number_of_page_pings
-    type: average
-    sql: ${number_of_page_pings}
   
   - measure: average_seconds_between_first_and_last_touch
     type: average
