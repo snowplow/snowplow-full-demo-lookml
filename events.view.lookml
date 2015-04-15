@@ -25,6 +25,7 @@
         event,
         collector_tstamp,
         dvce_tstamp,
+        EXTRACT(EPOCH FROM (collector_tstamp - dvce_tstamp)) AS dvce_collector_time_difference,
         page_title,
         page_urlscheme,
         page_urlhost,
@@ -65,14 +66,6 @@
   
   - dimension: event_type
     sql: ${TABLE}.event
-  
-  - dimension: timestamp
-    sql: ${TABLE}.collector_tstamp
-
-  - dimension_group: timestamp
-    type: time
-    timeframes: [time, hour, date, week, month]
-    sql: ${TABLE}.collector_tstamp
 
   - dimension: session_index
     type: number
@@ -84,20 +77,36 @@
   - dimension: session_id
     sql: ${TABLE}.domain_userid || '-' || ${TABLE}.domain_sessionidx
 
+  # Timestamp dimensions
+  
+  - dimension: collector_timestamp
+    sql: ${TABLE}.collector_tstamp
+  
+  - dimension_group: collector_timestamp
+    type: time
+    timeframes: [time, hour, date, week, month]
+    sql: ${TABLE}.collector_tstamp
+  
+  - dimension: device_timestamp
+    sql: ${TABLE}.dvce_tstamp
+    hidden: true
+  
   - dimension_group: device_timestamp
     type: time
     timeframes: [time, hour, date, week, month]
     sql: ${TABLE}.dvce_tstamp
     hidden: true
-
-  - dimension: device_collector_difference
+  
+  - dimension: device_collector_time_difference
     type: int
-    sql: EXTRACT(EPOCH FROM (${TABLE}.collector_tstamp - ${TABLE}.dvce_tstamp))
-
-  - dimension: device_collector_difference_tiered
+    sql: ${TABLE}.dvce_collector_time_difference
+  
+  - dimension: device_collector_time_difference_tiered
     type: tier
-    tiers: [0,1,5,10,30,60,300,900,3600,86400,604800]
-    sql: ${device_collector_difference}
+    tiers: [-1000000,-100000,-10000,-1000,-100,-10,-1,0,1,10,100,1000,10000,100000,1000000]
+    sql: ${device_collector_time_difference}
+  
+  # Page dimensions
 
   - dimension: page_title
     sql: ${TABLE}.page_title
