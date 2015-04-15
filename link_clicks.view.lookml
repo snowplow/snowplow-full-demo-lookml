@@ -15,31 +15,43 @@
 # Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 # License: Apache License Version 2.0
 
-- connection: snowplow_demo
-
-- scoping: true                  # for backward compatibility
-- include: "*.view.lookml"       # include all the views
-- include: "*.dashboard.lookml"  # include all the dashboards
-
-- explore: events
-  joins:
-  - join: sessions
-    sql_on: |
-      events.domain_userid = sessions.domain_userid AND
-      events.domain_sessionidx = sessions.domain_sessionidx
-    relationship: many_to_one
-  - join: visitors
-    sql_on: |
-      events.domain_userid = visitors.domain_userid
-    relationship: many_to_one
-
-- explore: sessions
-  joins: 
-  - join: visitors
-    sql_on: |
-      sessions.domain_userid = visitors.domain_userid
-    relationship: many_to_one
-
-- explore: visitors
-
-- explore: link_clicks
+- view: link_clicks
+  derived_table:
+    sql: |
+      SELECT
+        root_id,
+        root_tstamp,
+        element_id,
+        element_classes,
+        element_target,
+        target_url
+      FROM
+        atomic.com_snowplowanalytics_snowplow_link_click_1
+    
+    sql_trigger_value: SELECT COUNT(*) FROM ${visitors.SQL_TABLE_NAME} # Generate this table after visitors
+    distkey: root_id
+    sortkeys: [root_id]
+  
+  fields:
+  
+  # DIMENSIONS #
+  
+  # Basic dimensions
+  
+  - dimension: root_id
+    primary_key: true
+    sql: ${TABLE}.root_id
+  
+  - dimension: target_url
+    sql: ${TABLE}.target_url
+  
+  - dimension: internal_click
+    type: yesno
+    sql: ${TABLE}.target_url LIKE 'http://snowplowanalytics.com%'
+  
+  # MEASURES #
+  
+  # Basic measures
+  
+  - measure: count
+    type: count
