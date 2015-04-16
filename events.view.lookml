@@ -19,45 +19,68 @@
   derived_table:
     sql: |
       SELECT
-        domain_userid, 
-        domain_sessionidx,
-        event_id,
-        event,
-        collector_tstamp,
-        dvce_tstamp,
+        a.*,
         EXTRACT(EPOCH FROM (collector_tstamp - dvce_tstamp)) AS dvce_collector_time_difference,
-        page_title,
-        page_urlscheme,
-        page_urlhost,
-        page_urlpath,
-        page_urlport,
-        page_urlquery,
-        page_urlfragment,
-        refr_medium,
-        refr_source,
-        refr_term,
-        refr_urlhost,
-        refr_urlpath,
-        pp_xoffset_max,
-        pp_xoffset_min,
-        pp_yoffset_max,
-        pp_yoffset_min,
-        se_category,
-        se_action,
-        se_label,
-        se_property,
-        se_value,
-        doc_height,
-        doc_width
-      FROM atomic.events
-      WHERE domain_userid IS NOT NULL
+        
+        -- Link clicks
+        
+        b.link_element_id,
+        b.link_element_classes,
+        b.link_element_target,
+        b.link_target_url,
+        
+        -- Form submissions (sign up)
+        
+        c.sign_up_name,
+        c.sign_up_email,
+        c.sign_up_company,
+        c.sign_up_events_per_month,
+        c.sign_up_service_type,
+        
+        -- Form submissions (trial)
+        
+        d.trial_name,
+        d.trial_email,
+        d.trial_company,
+        d.trial_events_per_month,
+        
+        -- W3 content
+        
+        e.w3_breadcrumb,
+        e.w3_genre,
+        e.w3_author,
+        -- e.w3_date_created,
+        -- e.w3_date_modified,
+        e.w3_date_published,
+        -- e.w3_in_language,
+        e.w3_keywords
+        
+        -- W3 performance (todo)
+        
+      FROM atomic.events a
+      LEFT JOIN atomic.com_snowplowanalytics_snowplow_link_click_1 b
+        ON a.event_id = b.root_id
+      LEFT JOIN atomic.com_snowplowanalytics_snowplow_website_signup_form_submitted_1 c
+        ON a.event_id = c.root_id
+      LEFT JOIN atomic.com_snowplowanalytics_snowplow_website_trial_form_submitted_1 d
+        ON a.event_id = d.root_id
+      LEFT JOIN atomic.org_schema_web_page_1 e
+        ON a.event_id = e.root_id
+      LEFT JOIN atomic.org_w3_performance_timing_1 f
+        ON a.event_id = f.root_id
+      WHERE domain_sessionidx IS NOT NULL
+        AND domain_userid IS NOT NULL
+        AND domain_userid != ''
+        AND dvce_tstamp IS NOT NULL
+        AND dvce_tstamp > '2000-01-01' -- Prevent SQL errors
+        AND dvce_tstamp < '2030-01-01' -- Prevent SQL errors
     
-    sql_trigger_value: SELECT MAX(collector_tstamp) FROM atomic.events
+    sql_trigger_value: SELECT COUNT(*) FROM atomic.events # Trigger when atomic.events changes
     distkey: domain_userid
     sortkeys: [domain_userid, domain_sessionidx, collector_tstamp]
   
   fields:
-
+  
   # DIMENSIONS #
   
   - dimension: event_id
