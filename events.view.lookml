@@ -24,12 +24,16 @@
         
         -- Link clicks
         
+        CASE WHEN b.root_id IS NOT NULL THEN TRUE ELSE FALSE END AS link_click_event,
+        
         b.link_element_id,
         b.link_element_classes,
         b.link_element_target,
         b.link_target_url,
         
         -- Form submissions (sign up)
+        
+        CASE WHEN c.root_id IS NOT NULL THEN TRUE ELSE FALSE END AS sign_up_event,
         
         c.sign_up_name,
         c.sign_up_email,
@@ -39,12 +43,16 @@
         
         -- Form submissions (trial)
         
+        CASE WHEN d.root_id IS NOT NULL THEN TRUE ELSE FALSE END AS trial_event,
+        
         d.trial_name,
         d.trial_email,
         d.trial_company,
         d.trial_events_per_month,
         
         -- W3 content
+        
+        CASE WHEN e.root_id IS NOT NULL THEN TRUE ELSE FALSE END AS w3_content_event,
         
         e.w3_breadcrumb,
         e.w3_genre,
@@ -53,9 +61,11 @@
         -- e.w3_date_modified,
         e.w3_date_published,
         -- e.w3_in_language,
-        e.w3_keywords
+        e.w3_keywords,
         
         -- W3 performance (todo)
+        
+        CASE WHEN f.root_id IS NOT NULL THEN TRUE ELSE FALSE END AS w3_performance_event
         
       FROM atomic.events a
       LEFT JOIN atomic.com_snowplowanalytics_snowplow_link_click_1 b
