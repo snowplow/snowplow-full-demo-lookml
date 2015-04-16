@@ -15,48 +15,19 @@
 # Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 # License: Apache License Version 2.0
 
-- view: sign_up_basic # Possible extensions: distinct name, email, company count
+- view: sign_up_basic
   derived_table:
     sql: |
       SELECT
         domain_userid,
-        MIN(domain_sessionidx) AS domain_sessionidx_at_sign_up,
-        MIN(dvce_tstamp) AS dvce_tstamp_at_sign_up,
-        SUM(CASE WHEN form_type = 'trial' THEN 1 ELSE 0 END) AS trial_count,
-        SUM(CASE WHEN form_type = 'sign_up' THEN 1 ELSE 0 END) AS sign_up_count
-      FROM (
-        SELECT
-          b.domain_userid,
-          b.domain_sessionidx,
-          b.dvce_tstamp,
-          'sign_up' AS form_type,
-          a.name,
-          a.email,
-          a.company,
-          a.events_per_month,
-          a.service_type
-        FROM atomic.com_snowplowanalytics_snowplow_website_signup_form_submitted_1 a
-        INNER JOIN atomic.events b
-          ON a.root_id = b.event_id
-      
-        UNION
-      
-        SELECT
-          b.domain_userid,
-          b.domain_sessionidx,
-          b.dvce_tstamp,
-          'trial' AS form_type,
-          a.name,
-          a.email,
-          a.company,
-          a.events_per_month,
-          NULL AS service_type
-        FROM atomic.com_snowplowanalytics_snowplow_website_trial_form_submitted_1 a
-          INNER JOIN atomic.events b
-        ON a.root_id = b.event_id
-      )
+        MIN(domain_sessionidx) AS min_domain_sessionidx,
+        MIN(dvce_tstamp) AS min_dvce_tstamp,
+        SUM(CASE WHEN sign_up_event THEN 1 ELSE 0 END) AS sign_up_count,
+        SUM(CASE WHEN trial_event THEN 1 ELSE 0 END) AS trial_count
+      FROM ${events.SQL_TABLE_NAME}
+      WHERE sign_up_event IS NOT NULL OR trial_event IS NOT NULL
       GROUP BY 1
 
-    sql_trigger_value: SELECT MAX(collector_tstamp) FROM ${events.SQL_TABLE_NAME}  # Trigger table generation when new data loaded into atomic.events
+    sql_trigger_value: SELECT COUNT(*) FROM ${events.SQL_TABLE_NAME}  # Trigger after events
     distkey: domain_userid
     sortkeys: [domain_userid]

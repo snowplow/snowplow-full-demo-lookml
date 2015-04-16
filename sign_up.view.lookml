@@ -15,3 +15,22 @@
 # Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 # License: Apache License Version 2.0
 
+- view: sign_up
+  derived_table:
+    sql: |
+      SELECT
+        a.domain_userid,
+        a.min_domain_sessionidx,
+        a.min_dvce_tstamp,
+        a.sign_up_count,
+        a.trial_count,
+        b.first_plan,
+        b.first_events_per_month,
+        b.first_service_type
+      FROM ${sign_up_basic.SQL_TABLE_NAME} a
+      LEFT JOIN ${sign_up_basic.SQL_TABLE_NAME} b
+        ON a.domain_userid = b.domain_userid
+    
+    sql_trigger_value: SELECT COUNT(*) FROM ${sign_up_details.SQL_TABLE_NAME}  # Trigger after sign_up_details
+    distkey: domain_userid
+    sortkeys: [domain_userid]

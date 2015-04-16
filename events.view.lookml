@@ -19,6 +19,9 @@
   derived_table:
     sql: |
       SELECT
+        
+        -- Events
+        
         a.*,
         EXTRACT(EPOCH FROM (collector_tstamp - dvce_tstamp)) AS dvce_collector_time_difference,
         
@@ -57,10 +60,10 @@
         e.w3_breadcrumb,
         e.w3_genre,
         e.w3_author,
-        -- e.w3_date_created,
-        -- e.w3_date_modified,
+        e.w3_date_created, -- Not used
+        e.w3_date_modified, -- Not used
         e.w3_date_published,
-        -- e.w3_in_language,
+        e.w3_in_language, -- Not relevant
         e.w3_keywords,
         
         -- W3 performance (todo)
@@ -68,6 +71,7 @@
         CASE WHEN f.root_id IS NOT NULL THEN TRUE ELSE FALSE END AS w3_performance_event
         
       FROM atomic.events a
+      
       LEFT JOIN atomic.com_snowplowanalytics_snowplow_link_click_1 b
         ON a.event_id = b.root_id
       LEFT JOIN atomic.com_snowplowanalytics_snowplow_website_signup_form_submitted_1 c
@@ -78,12 +82,13 @@
         ON a.event_id = e.root_id
       LEFT JOIN atomic.org_w3_performance_timing_1 f
         ON a.event_id = f.root_id
-      WHERE domain_sessionidx IS NOT NULL
-        AND domain_userid IS NOT NULL
-        AND domain_userid != ''
-        AND dvce_tstamp IS NOT NULL
-        AND dvce_tstamp > '2000-01-01' -- Prevent SQL errors
-        AND dvce_tstamp < '2030-01-01' -- Prevent SQL errors
+      
+      WHERE a.domain_sessionidx IS NOT NULL
+        AND a.domain_userid IS NOT NULL
+        AND a.domain_userid != ''
+        AND a.dvce_tstamp IS NOT NULL
+        AND a.dvce_tstamp > '2000-01-01' -- Prevent SQL errors
+        AND a.dvce_tstamp < '2030-01-01' -- Prevent SQL errors
     
     sql_trigger_value: SELECT COUNT(*) FROM atomic.events # Trigger when atomic.events changes
     distkey: domain_userid
