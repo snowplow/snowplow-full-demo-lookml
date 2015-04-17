@@ -39,32 +39,3 @@
     sql_trigger_value: SELECT COUNT(*) FROM ${sessions_landing_page.SQL_TABLE_NAME} # Generate this table after sessions_landing
     distkey: domain_userid
     sortkeys: [domain_userid, domain_sessionidx]
-
-  fields:
-    
-  # DIMENSIONS #
-  
-  - dimension: user_id
-    sql: ${TABLE}.domain_userid
-    
-  - dimension: session_index
-    type: int
-    sql: ${TABLE}.domain_sessionidx
-
-  - dimension: exit_page_host
-    sql: ${TABLE}.page_urlhost
-    
-  - dimension: exit_page_path
-    sql: ${TABLE}.page_urlpath
-
-  - dimension: exit_page_url
-    sql: ${TABLE}.page_urlhost || ${TABLE}.page_urlpath
-  
-  # MEASURES #
-    
-  - measure: count
-    type: count
-    
-  - measure: exit_page_count
-    type: count_distinct
-    sql: ${exit_page_url}

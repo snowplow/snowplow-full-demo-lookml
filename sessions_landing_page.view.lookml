@@ -39,32 +39,3 @@
     sql_trigger_value: SELECT COUNT(*) FROM ${sessions_geo.SQL_TABLE_NAME} # Generate this table after sessions_geo
     distkey: domain_userid
     sortkeys: [domain_userid, domain_sessionidx]
-
-  fields:
-    
-  # DIMENSIONS #
-  
-  - dimension: user_id
-    sql: ${TABLE}.domain_userid
-    
-  - dimension: session_index
-    type: int
-    sql: ${TABLE}.domain_sessionidx
-
-  - dimension: landing_page_url_host
-    sql: ${TABLE}.page_urlhost
-    
-  - dimension: landing_page_url_path
-    sql: ${TABLE}.page_urlpath
-    
-  - dimension: landing_page_url
-    sql: ${TABLE}.page_urlhost || ${TABLE}.page_urlpath
-  
-  # MEASURES #
-    
-  - measure: count
-    type: count
-    
-  - measure: landing_page_count
-    type: count_distinct
-    sql: ${landing_page_url}
