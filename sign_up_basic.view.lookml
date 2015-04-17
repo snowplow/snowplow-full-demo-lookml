@@ -25,7 +25,7 @@
         SUM(CASE WHEN sign_up_event THEN 1 ELSE 0 END) AS sign_up_count,
         SUM(CASE WHEN trial_event THEN 1 ELSE 0 END) AS trial_count
       FROM ${events.SQL_TABLE_NAME}
-      WHERE sign_up_event IS NOT NULL OR trial_event IS NOT NULL
+      WHERE sign_up_event OR trial_event
       GROUP BY 1
 
     sql_trigger_value: SELECT COUNT(*) FROM ${events.SQL_TABLE_NAME}  # Trigger after events

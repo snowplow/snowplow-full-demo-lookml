@@ -19,21 +19,18 @@
   derived_table:
     sql: |
       SELECT
-        a.root_id,
-        a.root_tstamp,
-        b.domain_userid,
-        b.domain_sessionidx,
-        a.element_id,
-        a.element_classes,
-        a.element_target,
-        a.target_url,
-        REGEXP_SUBSTR(a.target_url, '[^/]+\\.[^/:]+') AS target_url_host,
-        a.target_url LIKE 'http://snowplowanalytics.com%' AS target_is_internal_click,
-        a.target_url LIKE '%github.com/snowplow%' AS target_is_github_snowplow
-      FROM
-        atomic.com_snowplowanalytics_snowplow_link_click_1 a
-      LEFT JOIN
-        atomic.events b ON a.root_id = b.event_id
+        domain_userid,
+        domain_sessionidx,
+        collector_tstamp,
+        link_element_id,
+        link_element_classes,
+        link_element_target,
+        link_target_url,
+        REGEXP_SUBSTR(link_target_url, '[^/]+\\.[^/:]+') AS link_target_url_host,
+        link_target_url LIKE 'http://snowplowanalytics.com%' AS link_target_is_internal_click,
+        link_target_url LIKE '%github.com/snowplow%' AS link_target_is_github_snowplow
+      FROM ${events.SQL_TABLE_NAME}
+      WHERE link_click_event IS TRUE
   
     sql_trigger_value: SELECT COUNT(*) FROM ${visitors.SQL_TABLE_NAME} # Generate this table after visitors
     distkey: root_id

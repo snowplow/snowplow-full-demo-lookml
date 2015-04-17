@@ -49,7 +49,7 @@
         INNER JOIN ${sign_up_basic.SQL_TABLE_NAME} AS b
           ON  a.domain_userid = b.domain_userid
           AND a.dvce_tstamp = b.min_dvce_tstamp
-        WHERE a.sign_up_event IS NOT NULL OR a.trial_event IS NOT NULL
+        WHERE a.sign_up_event OR a.trial_event
         GROUP BY 1,2,3,4 -- Aggregate identital rows (that happen to have the same dvce_tstamp)
       )
       WHERE rank = 1 -- If there are different rows with the same dvce_tstamp, rank and pick the first row
