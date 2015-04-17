@@ -15,19 +15,30 @@
 # Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 # License: Apache License Version 2.0
 
-- view: sessions_landing_page
+- view: sessions_first_page
   derived_table:
     sql: |
       SELECT
         *
       FROM (
         SELECT -- Select the first page (using dvce_tstamp)
+        
           a.domain_userid,
           a.domain_sessionidx,
+          
           a.page_urlhost,
           a.page_urlpath,
-          RANK() OVER (PARTITION BY a.domain_userid, a.domain_sessionidx ORDER BY a.page_urlhost, a.page_urlpath) AS rank
-        FROM atomic.events AS a
+          
+          a.w3_breadcrumb,
+          a.w3_genre,
+          a.w3_author,
+          a.w3_date_published,
+          a.w3_keywords,
+          
+          RANK() OVER (PARTITION BY a.domain_userid, a.domain_sessionidx ORDER BY a.page_urlhost, a.page_urlpath,
+            a.w3_breadcrumb, a.w3_genre, a.w3_author, a.w3_date_published, a.w3_keywords) AS rank
+          
+        FROM ${events.SQL_TABLE_NAME} AS a
         INNER JOIN ${sessions_basic.SQL_TABLE_NAME} AS b
           ON  a.domain_userid = b.domain_userid
           AND a.domain_sessionidx = b.domain_sessionidx

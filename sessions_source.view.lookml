@@ -22,22 +22,27 @@
         *
       FROM (
         SELECT -- Select campaign and referer data from the earliest row (using dvce_tstamp)
+          
           a.domain_userid,
           a.domain_sessionidx,
+          
           a.mkt_source,
           a.mkt_medium,
           a.mkt_term,
           a.mkt_content,
           a.mkt_campaign,
+          
           a.refr_source,
           a.refr_medium,
           a.refr_term,
           a.refr_urlhost,
           a.refr_urlpath,
-          RANK() OVER (PARTITION BY a.domain_userid, a.domain_sessionidx
-            ORDER BY a.mkt_source, a.mkt_medium, a.mkt_term, a.mkt_content, a.mkt_campaign, a.refr_source, a.refr_medium,
-            a.refr_term, a.refr_urlhost, a.refr_urlpath) AS rank
-        FROM atomic.events AS a
+          
+          RANK() OVER (PARTITION BY a.domain_userid, a.domain_sessionidx ORDER BY a.mkt_source, a.mkt_medium,
+            a.mkt_term, a.mkt_content, a.mkt_campaign, a.refr_source, a.refr_medium, a.refr_term,
+            a.refr_urlhost, a.refr_urlpath) AS rank
+        
+        FROM ${events.SQL_TABLE_NAME} AS a
         INNER JOIN ${sessions_basic.SQL_TABLE_NAME} AS b
           ON  a.domain_userid = b.domain_userid
           AND a.domain_sessionidx = b.domain_sessionidx
@@ -54,6 +59,6 @@
       )
       WHERE rank = 1 -- If there are different rows with the same dvce_tstamp, rank and pick the first row
     
-    sql_trigger_value: SELECT COUNT(*) FROM ${sessions_exit_page.SQL_TABLE_NAME} # Generate this table after sessions_exit_page
+    sql_trigger_value: SELECT COUNT(*) FROM ${sessions_last_page.SQL_TABLE_NAME} # Generate this table after sessions_last
     distkey: domain_userid
     sortkeys: [domain_userid, domain_sessionidx]

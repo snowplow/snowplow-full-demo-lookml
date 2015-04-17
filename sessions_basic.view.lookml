@@ -19,6 +19,7 @@
   derived_table:
     sql: |
       SELECT
+      
         domain_userid,
         domain_sessionidx,
         MIN(collector_tstamp) AS session_start_tstamp,
@@ -27,16 +28,10 @@
         MAX(dvce_tstamp) AS dvce_max_tstamp,
         COUNT(*) AS event_count,
         COUNT(DISTINCT(FLOOR(EXTRACT(EPOCH FROM dvce_tstamp)/30)))/2::FLOAT AS time_engaged_with_minutes
-      FROM
-        atomic.events
-      WHERE domain_sessionidx IS NOT NULL
-        AND domain_userid IS NOT NULL
-        AND domain_userid != ''
-        AND dvce_tstamp IS NOT NULL
-        AND dvce_tstamp > '2000-01-01' -- Prevent SQL errors
-        AND dvce_tstamp < '2030-01-01' -- Prevent SQL errors
+      
+      FROM ${events.SQL_TABLE_NAME}
       GROUP BY 1,2
 
-    sql_trigger_value: SELECT COUNT(*) FROM ${events.SQL_TABLE_NAME}  # Trigger table generation when new data loaded into atomic.events
+    sql_trigger_value: SELECT COUNT(*) FROM ${events.SQL_TABLE_NAME}  # Trigger table generation after events
     distkey: domain_userid
     sortkeys: [domain_userid, domain_sessionidx]

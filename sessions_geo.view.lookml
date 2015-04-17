@@ -19,6 +19,7 @@
   derived_table:
     sql: |
       SELECT
+      
         c.domain_userid,
         c.domain_sessionidx,
         d.name AS geo_country,
@@ -26,16 +27,21 @@
         d.three_letter_iso_code AS geo_country_code_3_characters,
         c.geo_region,
         c.geo_city
+      
       FROM (
         SELECT -- Select the geographical information associated with the earliest dvce_tstamp
+          
           a.domain_userid,
           a.domain_sessionidx,
+          
           a.geo_country,
           a.geo_region,
           a.geo_city,
+          
           RANK() OVER (PARTITION BY a.domain_userid, a.domain_sessionidx
             ORDER BY a.geo_country, a.geo_region, a.geo_city) AS rank
-        FROM atomic.events AS a
+        
+        FROM ${events.SQL_TABLE_NAME} AS a
         INNER JOIN ${sessions_basic.SQL_TABLE_NAME} AS b
           ON  a.domain_userid = b.domain_userid
           AND a.domain_sessionidx = b.domain_sessionidx
@@ -46,6 +52,6 @@
         ON c.geo_country = d.two_letter_iso_code
       WHERE c.rank = 1 -- If there are different rows with the same dvce_tstamp, rank and pick the first row
     
-    sql_trigger_value: SELECT COUNT(*) FROM ${sessions_basic.SQL_TABLE_NAME} # Generate this table after the sessions_basic table
+    sql_trigger_value: SELECT COUNT(*) FROM ${sessions_basic.SQL_TABLE_NAME} # Generate this table after sessions_basic
     distkey: domain_userid
     sortkeys: [domain_userid, domain_sessionidx]
