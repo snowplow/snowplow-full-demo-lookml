@@ -22,3 +22,5 @@
 - include: "*.dashboard.lookml"  # include all the dashboards
 
 - explore: events
+
+- explore: sign_up

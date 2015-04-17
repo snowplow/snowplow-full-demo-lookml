@@ -30,5 +30,6 @@
       GROUP BY 1
     
     sql_trigger_value: SELECT COUNT(*) FROM ${events.SQL_TABLE_NAME}  # Trigger after events
+    
     distkey: domain_userid
     sortkeys: [domain_userid]

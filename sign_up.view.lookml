@@ -33,6 +33,7 @@
         ON a.domain_userid = b.domain_userid
     
     sql_trigger_value: SELECT COUNT(*) FROM ${sign_up_details.SQL_TABLE_NAME}  # Trigger after sign_up_details
+    
     distkey: domain_userid
     sortkeys: [domain_userid]
   
@@ -67,5 +68,19 @@
     type: int
     sql: ${TABLE}.trial_count
   
+  - dimension: first_plan
+    sql: ${TABLE}.first_plan
   
+  - dimension: first_events_per_month
+    sql: ${TABLE}.first_events_per_month
+  
+  - dimension: first_service_type
+    sql: ${TABLE}.first_service_type
+  
+  # MEASURES #
+  
+  # Basic measures
+  
+  - measure: count
+    type: count
   

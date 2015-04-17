@@ -27,7 +27,7 @@
           CASE WHEN a.trial_event THEN a.trial_events_per_month ELSE a.sign_up_events_per_month END AS first_events_per_month,
           CASE WHEN a.trial_event THEN NULL ELSE a.sign_up_service_type END AS first_service_type,
           RANK() OVER (PARTITION BY a.domain_userid ORDER BY first_plan, first_events_per_month, first_service_type) AS rank
-        FROM {events.SQL_TABLE_NAME} AS a
+        FROM ${events.SQL_TABLE_NAME} AS a
         INNER JOIN ${sign_up_basic.SQL_TABLE_NAME} AS b
           ON  a.domain_userid = b.domain_userid
           AND a.dvce_tstamp = b.dvce_tstamp_at_first_submission
@@ -37,5 +37,6 @@
       WHERE rank = 1 -- If there are different rows with the same dvce_tstamp, rank and pick the first row
     
     sql_trigger_value: SELECT COUNT(*) FROM ${sign_up_basic.SQL_TABLE_NAME}  # Trigger after sign_up_basic
+    
     distkey: domain_userid
     sortkeys: [domain_userid]

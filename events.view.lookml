@@ -23,50 +23,51 @@
         -- Events
         
         a.*,
-        EXTRACT(EPOCH FROM (collector_tstamp - dvce_tstamp)) AS dvce_collector_time_difference,
+        
+        EXTRACT(EPOCH FROM (collector_tstamp - dvce_tstamp)) AS collector_dvce_time_difference,
         
         -- Link clicks
         
         CASE WHEN b.root_id IS NOT NULL THEN TRUE ELSE FALSE END AS link_click_event,
         
-        b.link_element_id,
-        b.link_element_classes,
-        b.link_element_target,
-        b.link_target_url,
+        b.element_id        AS link_element_id,
+        b.element_classes   AS link_element_classes,
+        b.element_target    AS link_element_target,
+        b.target_url        AS link_target_url,
         
         -- Form submissions (sign up)
         
         CASE WHEN c.root_id IS NOT NULL THEN TRUE ELSE FALSE END AS sign_up_event,
         
-        c.sign_up_name,
-        c.sign_up_email,
-        c.sign_up_company,
-        c.sign_up_events_per_month,
-        c.sign_up_service_type,
+        c.name              AS sign_up_name,
+        c.email             AS sign_up_email,
+        c.company           AS sign_up_company,
+        c.events_per_month  AS sign_up_events_per_month,
+        c.service_type      AS sign_up_service_type,
         
         -- Form submissions (trial)
         
         CASE WHEN d.root_id IS NOT NULL THEN TRUE ELSE FALSE END AS trial_event,
         
-        d.trial_name,
-        d.trial_email,
-        d.trial_company,
-        d.trial_events_per_month,
+        d.name              AS trial_name,
+        d.email             AS trial_email,
+        d.company           AS trial_company,
+        d.events_per_month  AS trial_events_per_month,
         
         -- W3 content
         
         CASE WHEN e.root_id IS NOT NULL THEN TRUE ELSE FALSE END AS w3_content_event,
         
-        e.w3_breadcrumb,
-        e.w3_genre,
-        e.w3_author,
-        e.w3_date_created, -- Not used
-        e.w3_date_modified, -- Not used
-        e.w3_date_published,
-        e.w3_in_language, -- Not relevant
-        e.w3_keywords,
+        e.breadcrumb        AS w3_breadcrumb,
+        e.genre             AS w3_genre,
+        e.author            AS w3_author,
+        e.date_created      AS w3_date_created, -- Not used
+        e.date_modified     AS w3_date_modified, -- Not used
+        e.date_published    AS w3_date_published,
+        e.in_language       AS w3_in_language, -- Not relevant
+        e.keywords          AS w3_keywords,
         
-        -- W3 performance (todo)
+        -- W3 performance
         
         CASE WHEN f.root_id IS NOT NULL THEN TRUE ELSE FALSE END AS w3_performance_event
         
@@ -91,5 +92,6 @@
         AND a.dvce_tstamp < '2030-01-01' -- Prevent SQL errors
     
     sql_trigger_value: SELECT COUNT(*) FROM atomic.events # Trigger when atomic.events changes
+    
     distkey: domain_userid
     sortkeys: [domain_userid, domain_sessionidx, collector_tstamp]
