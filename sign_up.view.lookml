@@ -20,17 +20,52 @@
     sql: |
       SELECT
         a.domain_userid,
-        a.min_domain_sessionidx,
-        a.min_dvce_tstamp,
+        a.domain_sessionidx_at_first_submission,
+        a.collector_tstamp_at_first_submission,
+        a.dvce_tstamp_at_first_submission,
         a.sign_up_count,
         a.trial_count,
         b.first_plan,
         b.first_events_per_month,
         b.first_service_type
       FROM ${sign_up_basic.SQL_TABLE_NAME} a
-      LEFT JOIN ${sign_up_basic.SQL_TABLE_NAME} b
+      LEFT JOIN ${sign_up_details.SQL_TABLE_NAME} b
         ON a.domain_userid = b.domain_userid
     
     sql_trigger_value: SELECT COUNT(*) FROM ${sign_up_details.SQL_TABLE_NAME}  # Trigger after sign_up_details
     distkey: domain_userid
     sortkeys: [domain_userid]
+  
+  fields:
+  
+  # DIMENSIONS #
+  
+  # Basic dimensions #
+  
+  - dimension: user_id
+    sql: ${TABLE}.domain_userid
+  
+  - dimension: session_index_at_first_submission
+    type: int
+    sql: ${TABLE}.domain_sessionidx_at_first_submission
+  
+  - dimension: session_index_at_first_submission_tiered
+    type: tier
+    tiers: [1,2,3,4,5,10,25,100,1000]
+    sql: ${session_index_at_first_submission}
+  
+  - dimension_group: time_at_first_submission
+    type: time
+    timeframes: [time, hour, date, week, month]
+    sql: ${TABLE}.collector_tstamp_at_first_submission
+  
+  - dimension: number_of_sign_up_submissions
+    type: int
+    sql: ${TABLE}.sign_up_count
+  
+  - dimension: number_of_trial_submissions
+    type: int
+    sql: ${TABLE}.trial_count
+  
+  
+  

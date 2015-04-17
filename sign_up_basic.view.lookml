@@ -20,14 +20,15 @@
     sql: |
       SELECT
         domain_userid,
-        MIN(domain_sessionidx) AS min_domain_sessionidx,
-        MIN(dvce_tstamp) AS min_dvce_tstamp,
+        MIN(domain_sessionidx) AS domain_sessionidx_at_first_submission,
+        MIN(collector_tstamp) AS collector_tstamp_at_first_submission,
+        MIN(dvce_tstamp) AS dvce_tstamp_at_first_submission,
         SUM(CASE WHEN sign_up_event THEN 1 ELSE 0 END) AS sign_up_count,
         SUM(CASE WHEN trial_event THEN 1 ELSE 0 END) AS trial_count
       FROM ${events.SQL_TABLE_NAME}
-      WHERE sign_up_event OR trial_event
+      WHERE sign_up_event IS TRUE OR trial_event IS TRUE
       GROUP BY 1
-
+    
     sql_trigger_value: SELECT COUNT(*) FROM ${events.SQL_TABLE_NAME}  # Trigger after events
     distkey: domain_userid
     sortkeys: [domain_userid]

@@ -22,34 +22,16 @@
         *
       FROM (
         SELECT -- Select the first form submission (using dvce_tstamp)
-        
           a.domain_userid,
-          
-          CASE
-            WHEN a.trial_event THEN 'trial'
-            WHEN a.sign_up_event THEN 'sign_up'
-            ELSE 'unknown'
-          END AS plan,
-          
-          CASE
-            WHEN a.trial_event THEN a.trial_events_per_month
-            WHEN a.sign_up_event THEN a.sign_up_events_per_month
-            ELSE 'unknown'
-          END AS events_per_month,
-          
-          CASE
-            WHEN a.trial_event THEN NULL
-            WHEN a.sign_up_event THEN a.sign_up_service_type
-            ELSE 'unknown'
-          END AS service_type,
-          
-          RANK() OVER (PARTITION BY a.domain_userid ORDER BY plan, events_per_month, service_type) AS rank
-        
+          CASE WHEN a.trial_event THEN 'trial' ELSE 'sign_up' END AS first_plan,
+          CASE WHEN a.trial_event THEN a.trial_events_per_month ELSE a.sign_up_events_per_month END AS first_events_per_month,
+          CASE WHEN a.trial_event THEN NULL ELSE a.sign_up_service_type END AS first_service_type,
+          RANK() OVER (PARTITION BY a.domain_userid ORDER BY first_plan, first_events_per_month, first_service_type) AS rank
         FROM {events.SQL_TABLE_NAME} AS a
         INNER JOIN ${sign_up_basic.SQL_TABLE_NAME} AS b
           ON  a.domain_userid = b.domain_userid
-          AND a.dvce_tstamp = b.min_dvce_tstamp
-        WHERE a.sign_up_event OR a.trial_event
+          AND a.dvce_tstamp = b.dvce_tstamp_at_first_submission
+        WHERE a.sign_up_event IS TRUE OR a.trial_event IS TRUE
         GROUP BY 1,2,3,4 -- Aggregate identital rows (that happen to have the same dvce_tstamp)
       )
       WHERE rank = 1 -- If there are different rows with the same dvce_tstamp, rank and pick the first row
