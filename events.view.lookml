@@ -95,3 +95,16 @@
     
     distkey: domain_userid
     sortkeys: [domain_userid, domain_sessionidx, collector_tstamp]
+
+  fields:
+  
+  # DIMENSIONS # 
+  
+  - dimension: collector_device_time_difference
+    type: int
+    sql: ${TABLE}.collector_dvce_time_difference
+  
+  - dimension: collector_device_time_difference_tiered
+    type: tier
+    tiers: [-1000000,-100000,-10000,-1000,-100,-10,-1,0,1,10,100,1000,10000,100000,1000000]
+    sql: ${collector_device_time_difference}
