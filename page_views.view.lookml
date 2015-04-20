@@ -102,6 +102,16 @@
   
   - dimension: page_keywords
     sql: ${TABLE}.keywords
+
+  # Time-related dimensions
+  
+  - dimension: days_since_publishing
+    type: int
+    sql: EXTRACT(DAYS FROM (${TABLE}.first_touch_tstamp - ${TABLE}.date_published))
+  
+  - dimension: weeks_since_publishing
+    type: int
+    sql: ROUND(${days_since_publishing}/7)
   
   # Engagement-related dimensions
   
@@ -145,14 +155,6 @@
     tiers: [0,1,2,3,4,5,10,30,60,120,300]
     sql: ${minutes_engaged}
   
-  - dimension: days_since_publishing
-    type: int
-    sql: EXTRACT(DAYS FROM (${TABLE}.first_touch_tstamp - ${TABLE}.date_published))
-  
-  - dimension: weeks_since_publishing
-    type: int
-    sql: ROUND(${days_since_publishing}/7)
-  
   # MEASURES #
   
   # Basic counts
@@ -192,9 +194,22 @@
   
   # Test
   
-  - measure: unique_page_visitor_combinations
+  - measure: unique_page_views
     type: count_distinct
-    sql: ${user_id} || '-' || ${page}
+    sql: ${user_id} || '-' || ${page} # unique combinations
+  
+  - measure: cumulative_unique_page_views
+    type: running_total
+    sql: ${unique_page_views}
+  
+  - measure: unique_page_views_per_post # APPROXIMATION
+    type: number
+    decimals: 2
+    sql: ${unique_page_views}/NULLIF(${page_count},0)::REAL
+  
+  - measure: cumulative_unique_page_views_per_post # APPROXIMATION
+    type: running_total
+    sql: ${unique_page_views_per_post}
   
   # Averages
   
