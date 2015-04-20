@@ -46,6 +46,7 @@
         AND b.domain_sessionidx = s.domain_sessionidx
         AND b.page_urlhost = s.page_urlhost
         AND b.page_urlpath = s.page_urlpath
+      WHERE b.page_urlhost NOT LIKE 'localhost%'
     
     sql_trigger_value: SELECT COUNT(*) FROM ${page_views_schema.SQL_TABLE_NAME} # Generate this table after page_views_schema
     distkey: domain_userid
@@ -173,6 +174,9 @@
   - measure: page_count
     type: count_distinct
     sql: ${page}
+    drill_fields: 
+    - page
+    - detail*
   
   # More counts
   
@@ -207,6 +211,11 @@
     decimals: 2
     sql: ${unique_page_views}/NULLIF(${page_count},0)::REAL
   
+  - measure: total_minutes_engaged_per_post
+    type: number
+    decimals: 2
+    sql: ${total_minutes_engaged}/NULLIF(${page_count},0)::REAL
+  
   # Averages
   
   - measure: average_seconds_between_first_and_last_touch
@@ -216,3 +225,11 @@
   - measure: average_minutes_engaged
     type: average
     sql: ${minutes_engaged}
+    value_format: '#.00'
+  
+  # DRILL FIELDS #
+
+  sets:
+  
+    detail:
+      - row_count
