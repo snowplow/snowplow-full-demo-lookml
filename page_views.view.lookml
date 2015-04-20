@@ -32,7 +32,8 @@
         b.page_ping_count,
         b.time_engaged_with_minutes,
         
-        s.w3_page_title AS page_title,
+        s.page_title,
+        
         s.w3_breadcrumb AS breadcrumb,
         s.w3_genre AS genre,
         s.w3_author AS author,
@@ -146,7 +147,11 @@
   
   - dimension: days_since_publishing
     type: int
-    sql: ROUND(EXTRACT(EPOCH FROM (${TABLE}.first_touch_tstamp - ${TABLE}.date_published))/86400)
+    sql: EXTRACT(DAYS FROM (${TABLE}.first_touch_tstamp - ${TABLE}.date_published))
+  
+  - dimension: weeks_since_publishing
+    type: int
+    sql: ROUND(${days_since_publishing}/7)
   
   # MEASURES #
   
@@ -184,6 +189,12 @@
   - measure: total_minutes_engaged
     type: sum
     sql: ${minutes_engaged}
+  
+  # Test
+  
+  - measure: unique_page_visitor_combinations
+    type: count_distinct
+    sql: ${user_id} || '-' || ${page}
   
   # Averages
   

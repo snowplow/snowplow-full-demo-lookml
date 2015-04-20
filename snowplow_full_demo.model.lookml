@@ -26,3 +26,7 @@
 - explore: sign_up
 
 - explore: sessions
+
+- explore: page_views
+
+- explore: link_clicks

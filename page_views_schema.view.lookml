@@ -38,7 +38,7 @@
           a.w3_keywords,
           
           RANK() OVER (PARTITION BY a.domain_userid, a.domain_sessionidx, a.page_urlhost, a.page_urlpath
-            ORDER BY a.page_title, a.breadcrumb, a.genre, a.author, a.date_published, a.keywords) AS rank
+            ORDER BY a.page_title, a.w3_breadcrumb, a.w3_genre, a.w3_author, a.w3_date_published, a.w3_keywords) AS rank
         
         FROM ${events.SQL_TABLE_NAME} AS a
         INNER JOIN ${page_views_basic.SQL_TABLE_NAME} AS c
