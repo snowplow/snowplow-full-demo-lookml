@@ -108,3 +108,9 @@
     type: tier
     tiers: [-1000000,-100000,-10000,-1000,-100,-10,-1,0,1,10,100,1000,10000,100000,1000000]
     sql: ${collector_device_time_difference}
+  
+  # MEASURES #
+  
+  - measure: row_count
+    type: count
+  
