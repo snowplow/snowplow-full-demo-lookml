@@ -26,7 +26,7 @@
         b.dvce_min_tstamp,
         b.dvce_max_tstamp,
         b.event_count,
-        b.time_engaged_with_minutes
+        b.time_engaged_with_minutes,
         
         f.page_urlhost AS first_page_host,
         f.page_urlpath AS first_page_path,
