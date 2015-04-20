@@ -202,14 +202,10 @@
     type: running_total
     sql: ${unique_page_views}
   
-  - measure: unique_page_views_per_post # APPROXIMATION
+  - measure: unique_page_views_per_post
     type: number
     decimals: 2
     sql: ${unique_page_views}/NULLIF(${page_count},0)::REAL
-  
-  - measure: cumulative_unique_page_views_per_post # APPROXIMATION
-    type: running_total
-    sql: ${unique_page_views_per_post}
   
   # Averages
   
