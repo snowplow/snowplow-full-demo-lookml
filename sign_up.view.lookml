@@ -19,15 +19,20 @@
   derived_table:
     sql: |
       SELECT
+      
         a.domain_userid,
+        
         a.domain_sessionidx_at_first_submission,
         a.collector_tstamp_at_first_submission,
         a.dvce_tstamp_at_first_submission,
+        
         a.sign_up_count,
         a.trial_count,
+        
         b.first_plan,
         b.first_events_per_month,
         b.first_service_type
+        
       FROM ${sign_up_basic.SQL_TABLE_NAME} a
       LEFT JOIN ${sign_up_details.SQL_TABLE_NAME} b
         ON a.domain_userid = b.domain_userid

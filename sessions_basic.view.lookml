@@ -15,27 +15,26 @@
 # Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 # License: Apache License Version 2.0
 
-- view: sign_up_basic
+- view: sessions_basic
   derived_table:
     sql: |
       SELECT
-        
+      
         domain_userid,
+        domain_sessionidx,
         
-        MIN(domain_sessionidx) AS domain_sessionidx_at_first_submission,
-        MIN(collector_tstamp) AS collector_tstamp_at_first_submission,
-        MIN(dvce_tstamp) AS dvce_tstamp_at_first_submission,
+        MIN(collector_tstamp) AS session_start_tstamp,
+        MAX(collector_tstamp) AS session_end_tstamp,
+        MIN(dvce_tstamp) AS dvce_min_tstamp,
+        MAX(dvce_tstamp) AS dvce_max_tstamp,
         
-        SUM(CASE WHEN sign_up_event THEN 1 ELSE 0 END) AS sign_up_count,
-        SUM(CASE WHEN trial_event THEN 1 ELSE 0 END) AS trial_count
-        
-      FROM
-        ${events.SQL_TABLE_NAME}
-      WHERE sign_up_event IS TRUE
-        OR  trial_event IS TRUE
-      GROUP BY 1
+        COUNT(*) AS event_count,
+        COUNT(DISTINCT(FLOOR(EXTRACT(EPOCH FROM dvce_tstamp)/30)))/2::FLOAT AS time_engaged_with_minutes
+      
+      FROM ${events.SQL_TABLE_NAME}
+      GROUP BY 1,2
     
-    sql_trigger_value: SELECT COUNT(*) FROM ${events.SQL_TABLE_NAME}  # Trigger after events
+    sql_trigger_value: SELECT COUNT(*) FROM ${sign_up.SQL_TABLE_NAME}  # Trigger table generation after sign_up
     
     distkey: domain_userid
-    sortkeys: [domain_userid]
+    sortkeys: [domain_userid, domain_sessionidx]

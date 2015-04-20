@@ -15,32 +15,39 @@
 # Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 # License: Apache License Version 2.0
 
-- view: sign_up_details
+- view: sessions_first_page
   derived_table:
     sql: |
       SELECT
         *
       FROM (
-        SELECT -- Select the first form submission (using dvce_tstamp)
+        SELECT -- Select the first page (using dvce_tstamp)
         
           a.domain_userid,
+          a.domain_sessionidx,
           
-          CASE WHEN a.trial_event THEN 'trial' ELSE 'sign_up' END AS first_plan,
-          CASE WHEN a.trial_event THEN a.trial_events_per_month ELSE a.sign_up_events_per_month END AS first_events_per_month,
-          CASE WHEN a.trial_event THEN NULL ELSE a.sign_up_service_type END AS first_service_type,
+          a.page_urlhost,
+          a.page_urlpath,
           
-          RANK() OVER (PARTITION BY a.domain_userid ORDER BY first_plan, first_events_per_month, first_service_type) AS rank
+          a.w3_breadcrumb,
+          a.w3_genre,
+          a.w3_author,
+          a.w3_date_published,
+          a.w3_keywords,
+          
+          RANK() OVER (PARTITION BY a.domain_userid, a.domain_sessionidx ORDER BY a.page_urlhost, a.page_urlpath,
+            a.w3_breadcrumb, a.w3_genre, a.w3_author, a.w3_date_published, a.w3_keywords) AS rank
           
         FROM ${events.SQL_TABLE_NAME} AS a
-        INNER JOIN ${sign_up_basic.SQL_TABLE_NAME} AS b
+        INNER JOIN ${sessions_basic.SQL_TABLE_NAME} AS b
           ON  a.domain_userid = b.domain_userid
-          AND a.dvce_tstamp = b.dvce_tstamp_at_first_submission
-        WHERE a.sign_up_event IS TRUE OR a.trial_event IS TRUE
+          AND a.domain_sessionidx = b.domain_sessionidx
+          AND a.dvce_tstamp = b.dvce_min_tstamp
         GROUP BY 1,2,3,4 -- Aggregate identital rows (that happen to have the same dvce_tstamp)
       )
       WHERE rank = 1 -- If there are different rows with the same dvce_tstamp, rank and pick the first row
     
-    sql_trigger_value: SELECT COUNT(*) FROM ${sign_up_basic.SQL_TABLE_NAME}  # Trigger after sign_up_basic
+    sql_trigger_value: SELECT COUNT(*) FROM ${sessions_basic.SQL_TABLE_NAME} # Generate this table after sessions_basic
     
     distkey: domain_userid
-    sortkeys: [domain_userid]
+    sortkeys: [domain_userid, domain_sessionidx]
