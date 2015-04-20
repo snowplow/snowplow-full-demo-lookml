@@ -43,7 +43,7 @@
           ON  a.domain_userid = b.domain_userid
           AND a.domain_sessionidx = b.domain_sessionidx
           AND a.dvce_tstamp = b.dvce_min_tstamp
-        GROUP BY 1,2,3,4 -- Aggregate identital rows (that happen to have the same dvce_tstamp)
+        GROUP BY 1,2,3,4,5,6,7,8,9 -- Aggregate identital rows (that happen to have the same dvce_tstamp)
       )
       WHERE rank = 1 -- If there are different rows with the same dvce_tstamp, rank and pick the first row
     

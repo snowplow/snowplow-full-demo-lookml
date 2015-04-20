@@ -24,3 +24,5 @@
 - explore: events
 
 - explore: sign_up
+
+- explore: sessions
