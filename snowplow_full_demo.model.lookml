@@ -18,15 +18,5 @@
 - connection: snowplow_demo
 
 - scoping: true                  # for backward compatibility
-- include: "*.view.lookml"       # include all the views
-- include: "*.dashboard.lookml"  # include all the dashboards
-
-- explore: events
-
-- explore: sign_up
-
-- explore: sessions
-
-- explore: page_views
-
-- explore: link_clicks
+- include: '*.view.lookml'       # include all views
+- include: '*.dashboard.lookml'  # include all dashboards
