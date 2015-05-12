@@ -48,13 +48,12 @@
   
   - dimension: website_section
     sql_case:
-      blog: ${TABLE}.w3_genre = 'blog'
+      homepage: ${TABLE}.page_urlpath = '/'
       analytics: ${TABLE}.w3_genre = 'analytics'
+      blog: ${TABLE}.w3_genre = 'blog'
+      technology: ${TABLE}.w3_genre = 'technology'
       product: ${TABLE}.w3_genre = 'product'
       pricing: ${TABLE}.w3_genre = 'pricing'
-      technology: ${TABLE}.w3_genre = 'technology'
-      about: ${TABLE}.w3_genre = 'about'
-      authors: ${TABLE}.w3_genre = 'authors'
       else: other
   
   - dimension: blog_author
@@ -103,14 +102,14 @@
   
   # Engagement
   
-  - dimension: minutes_engaged
+  - dimension: time_engaged
     type: number
-    sql: ${TABLE}.time_engaged_in_minutes
+    sql: ${TABLE}.time_engaged_in_seconds
   
-  - dimension: minutes_engaged_tiered
+  - dimension: time_engaged_tiered
     type: tier
-    tiers: [0,1,2,3,4,5,10,30,60,120,300]
-    sql: ${minutes_engaged}
+    tiers: [5,30,60,120,300,600]
+    sql: ${time_engaged}
   
   - dimension: page_view_count
     type: int
@@ -140,6 +139,23 @@
   
   # MEASURES #
   
+  # Basic counts
+  
   - measure: count
     type: count
+  
+  - measure: visitor_count
+    type: count_distinct
+    sql: ${user_id}
+  
+  # Time engaged
+  
+  - measure: total_time_engaged
+    type: sum
+    sql: ${time_engaged}
+  
+  - measure: total_time_engaged_in_hours
+    type: number
+    decimals: 2
+    sql: ${total_time_engaged}/3600
   
