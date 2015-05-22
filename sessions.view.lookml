@@ -15,10 +15,3 @@
 # Copyright: Copyright (c) 2013-2015 Snowplow Analytics Ltd
 # License: Apache License Version 2.0
 
-- connection: snowplow_demo
-
-- scoping: true                  # for backward compatibility
-- include: '*.view.lookml'       # include all views
-- include: '*.dashboard.lookml'  # include all dashboards
-
-- explore: page_views
